@@ -268,7 +268,11 @@ class App < Sinatra::Application
             .map(p => `<p>${p.replace(/\\n/g, "<br>")}</p>`)
             .join("");
 
-          window.parent.postMessage({event: "insertHtml", html: html, nonce: json.decrypted.nonce, unique_id: json.unique_id, integration_id: json.integration_id, metadata: json.metadata}, json.decrypted.origin);
+          // Matching the documented shape exactly: event, html, nonce only.
+          // (Previously also sent unique_id/integration_id/metadata, which the docs example
+          // doesn't include -- testing whether the extra fields were causing Salesloft's
+          // listener to silently ignore the message.)
+          window.parent.postMessage({event: "insertHtml", html: html, nonce: json.decrypted.nonce}, json.decrypted.origin);
         };
       </script>
       #{debug_details(request.params, decrypted, unique_id, metadata)}
